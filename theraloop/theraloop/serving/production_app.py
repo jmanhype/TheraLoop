@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 from ..adapters.together import complete_with_logprobs
-from .router import should_escalate
+from .router import should_escalate_enhanced as should_escalate
 
 SAFE_MODE = os.getenv("SAFE_MODE", "0") == "1"
 PROMPT_PATH = os.getenv("THERALOOP_PROMPT_PATH", "outputs/best_prompt.txt")
@@ -36,7 +36,7 @@ def version():
 def score(req: Query):
     rendered = f"{PROMPT}\n\nTask:\n{req.question}\nReturn only the answer."
     out = complete_with_logprobs(rendered, max_tokens=256)
-    escalation = should_escalate(out.get("token_logprobs", []))
+    escalation = should_escalate(out.get("token_logprobs", []), text=req.question)
     
     # Simple safety check (placeholder)
     safe = not any(word in out.get("text", "").lower() for word in ["unsafe", "danger", "error"])

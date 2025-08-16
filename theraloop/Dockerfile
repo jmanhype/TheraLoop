@@ -60,6 +60,7 @@ COPY --from=ui-builder --chown=appuser:appuser /ui/build ./ui/build
 ENV PATH=/home/appuser/.local/bin:$PATH \
     PYTHONPATH=/app:$PYTHONPATH \
     THERALOOP_PROMPT_PATH=outputs/best_prompt.txt \
+    THERALOOP_USE_GEPA=true \
     PORT=8080
 
 # Switch to non-root user
