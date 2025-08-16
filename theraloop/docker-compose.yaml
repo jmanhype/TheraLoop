@@ -1,0 +1,12 @@
+services:
+  theraloop:
+    build: .
+    image: theraloop:latest
+    ports: ["8080:8080"]
+    environment:
+      TOGETHER_API_KEY: ${TOGETHER_API_KEY}
+      THERALOOP_EXPERIMENT: theraloop-prod
+      THERALOOP_CONFIDENCE_THRESHOLD: "-50.0"
+      SAFE_MODE: "1"
+    volumes:
+      - ./outputs:/app/outputs

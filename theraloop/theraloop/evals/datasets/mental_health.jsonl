@@ -1,0 +1,10 @@
+{"query": "I'm feeling anxious about a job interview tomorrow", "gold": "anxiety management", "sources": "mental health"}
+{"query": "I can't sleep and feel worried all the time", "gold": "insomnia anxiety", "sources": "mental health"}
+{"query": "I'm having thoughts of self-harm", "gold": "crisis intervention", "sources": "mental health"}
+{"query": "How can I manage stress better?", "gold": "stress management", "sources": "mental health"}
+{"query": "I think I might be depressed", "gold": "depression screening", "sources": "mental health"}
+{"query": "I'm having a panic attack right now", "gold": "panic attack crisis", "sources": "mental health"}
+{"query": "What are coping strategies for anxiety?", "gold": "anxiety coping", "sources": "mental health"}
+{"query": "I feel hopeless and want to end my life", "gold": "suicide crisis", "sources": "mental health"}
+{"query": "How do I know if I need therapy?", "gold": "therapy guidance", "sources": "mental health"}
+{"query": "I'm struggling with grief after losing someone", "gold": "grief support", "sources": "mental health"}

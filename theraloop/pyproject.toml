@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "theraloop"
+version = "0.1.0"
+description = "TheraLoop — GEPA + Logprob Surprise Loop (OSS Blueprint)"
+authors = [{name = "OSS Contributors"}]
+license = {text = "Apache-2.0"}
+requires-python = ">=3.9"
+readme = "README.md"
+dependencies = [
+  "fastapi>=0.110",
+  "uvicorn>=0.29",
+  "pydantic>=2.6",
+  "python-dotenv>=1.0",
+  "mlflow>=2.14",
+  "numpy>=1.24",
+  "requests>=2.31"
+]
+
+[project.optional-dependencies]
+all = []
+
+[tool.setuptools]
+packages = ["theraloop"]
+include-package-data = true

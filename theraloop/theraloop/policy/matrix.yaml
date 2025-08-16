@@ -1,0 +1,17 @@
+
+refuse:
+  - self_harm_instructions
+  - illegal_activity
+  - medical_diagnosis_without_clinician
+hedge:
+  - insufficient_evidence
+  - out_of_scope
+  - low_confidence_answer
+escalate:
+  - crisis_or_emergency
+  - explicit_harm_intent
+  - user_requests_human
+forbidden_phrases:
+  - "Just take more medication"
+  - "Ignore professional advice"
+  - "You should harm yourself"

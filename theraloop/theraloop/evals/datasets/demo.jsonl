@@ -1,0 +1,2 @@
+{"query": "What is 2+2?", "gold": "4", "sources": "basic math"}
+{"query": "Return ISO date for Jan 1, 2020.", "gold": "2020-01-01", "sources": "ISO-8601"}
