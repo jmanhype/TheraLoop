@@ -8,6 +8,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from theraloop.adapters.together import complete_with_logprobs
 from theraloop.serving.router import should_escalate_enhanced
+from theraloop.serving.gepa_detection import detect_crisis_gepa
+from theraloop.serving.dspy_therapy_responses import generate_therapy_response
+from theraloop.serving.dspy_intent_classification import classify_user_intent
 from theraloop.persistence.database import get_db
 
 # Configure logging
@@ -88,33 +91,56 @@ def answer(q: Query):
             context_messages.insert(0, message_text)  # Insert at beginning to maintain order
             total_context_chars += len(message_text)
         
-        # Build consistent prompt structure
-        if context_messages:
-            conversation_context = "\n".join(context_messages)
-            prompt_with_context = f"{PROMPT}\n\nConversation History:\n{conversation_context}\n\nUser: {q.question}\n\nRespond naturally, maintaining conversation continuity:"
-        else:
-            prompt_with_context = f"{PROMPT}\n\nUser: {q.question}\n\nRespond naturally:"
-            
-        out = complete_with_logprobs(prompt_with_context, max_tokens=128)
-        logprobs = out.get("token_logprobs", [])
-        escalate = should_escalate_enhanced(logprobs, text=q.question)  # Use enhanced detection with GEPA option
-        confidence_sum = sum(logprobs or [])
-        answer_text = (out.get("text","") or "").strip()
+        # === DSPy GEPA Integration ===
+        # First, classify user intent for optimal routing
+        intent_result = classify_user_intent(
+            user_message=q.question,
+            conversation_history=history,
+            user_session_stage="ongoing" if len(history) > 2 else "new"
+        )
+        
+        # Detect crisis level using DSPy GEPA
+        crisis_result = detect_crisis_gepa(q.question)
+        crisis_level = crisis_result["classification"]
+        crisis_confidence = crisis_result["confidence"]
+        escalate = crisis_result["should_escalate"]
+        
+        # Generate therapy response using DSPy-optimized system with intent context
+        therapy_response = generate_therapy_response(
+            user_message=q.question,
+            conversation_history=history,
+            crisis_level=crisis_level,
+            crisis_confidence=crisis_confidence
+        )
+        
+        answer_text = therapy_response["response"]
+        response_type = therapy_response["response_type"]
+        empathy_score = therapy_response["empathy_score"]
+        
+        # Legacy compatibility - convert confidence to negative logprob scale
+        # Ensure crisis_confidence is valid to prevent NaN propagation
+        if not isinstance(crisis_confidence, (int, float)) or not (0.0 <= crisis_confidence <= 1.0):
+            crisis_confidence = 0.5
+        confidence_sum = -abs(1.0 - crisis_confidence) * 10  # Higher confidence = less negative
         
         # Store assistant response
         db.add_message(
             conversation_id, 
             "assistant", 
             answer_text,
-            confidence_score=confidence_sum,
-            token_logprobs=logprobs
+            confidence_score=confidence_sum
         )
         
         return {
             "answer": answer_text,
             "confidence_logprob_sum": confidence_sum,
             "escalate": bool(escalate),
-            "conversation_id": conversation_id
+            "conversation_id": conversation_id,
+            "intent_category": intent_result["intent_category"],
+            "intent_confidence": intent_result["confidence_score"],
+            "crisis_level": crisis_level,
+            "empathy_score": empathy_score,
+            "response_type": response_type
         }
     except HTTPException:
         # Re-raise HTTP exceptions (like 404)
