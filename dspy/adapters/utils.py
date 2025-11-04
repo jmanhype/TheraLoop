@@ -28,7 +28,8 @@ def serialize_for_json(value: Any) -> Any:
     # that pydantic doesn't recognize or can't serialize)
     try:
         return TypeAdapter(type(value)).dump_python(value, mode="json")
-    except Exception:
+    except (pydantic.ValidationError, TypeError, ValueError):
+        # Expected serialization failures - fall back to string representation
         return str(value)
 
 
@@ -176,7 +177,8 @@ def parse_value(value, annotation):
             try:
                 # For dspy.Type, try parsing from the original value in case it has a custom parser
                 return TypeAdapter(annotation).validate_python(value)
-            except Exception:
+            except (pydantic.ValidationError, TypeError, ValueError):
+                # Re-raise the original validation error if custom parser also fails
                 raise e
 
         if origin is Union and type(None) in get_args(annotation) and str in get_args(annotation):

@@ -76,8 +76,11 @@ class JSONAdapter(ChatAdapter):
             )
             lm_kwargs["response_format"] = structured_output_model
             return super().__call__(lm, lm_kwargs, signature, demos, inputs)
-        except Exception:
-            logger.warning("Failed to use structured output format, falling back to JSON mode.")
+        except Exception as e:
+            logger.warning(
+                f"Failed to use structured output format, falling back to JSON mode. "
+                f"Error: {type(e).__name__}: {e}"
+            )
             lm_kwargs["response_format"] = {"type": "json_object"}
             return super().__call__(lm, lm_kwargs, signature, demos, inputs)
 
@@ -97,8 +100,11 @@ class JSONAdapter(ChatAdapter):
             structured_output_model = _get_structured_outputs_response_format(signature)
             lm_kwargs["response_format"] = structured_output_model
             return await super().acall(lm, lm_kwargs, signature, demos, inputs)
-        except Exception:
-            logger.warning("Failed to use structured output format, falling back to JSON mode.")
+        except Exception as e:
+            logger.warning(
+                f"Failed to use structured output format, falling back to JSON mode. "
+                f"Error: {type(e).__name__}: {e}"
+            )
             lm_kwargs["response_format"] = {"type": "json_object"}
             return await super().acall(lm, lm_kwargs, signature, demos, inputs)
 
@@ -204,7 +210,10 @@ class JSONAdapter(ChatAdapter):
         self, signature: type[Signature], demos: list[dict[str, Any]], inputs: dict[str, Any], outputs: dict[str, Any]
     ) -> dict[str, list[Any]]:
         # TODO: implement format_finetune_data method in JSONAdapter
-        raise NotImplementedError
+        raise NotImplementedError(
+            "JSONAdapter.format_finetune_data() is not yet implemented. "
+            "Please use ChatAdapter for fine-tuning or contribute this feature."
+        )
 
 
 def _get_structured_outputs_response_format(

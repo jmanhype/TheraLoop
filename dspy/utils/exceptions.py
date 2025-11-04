@@ -30,3 +30,29 @@ class AdapterParseError(Exception):
             message += f"Actual output fields parsed from the LM response: [{', '.join(parsed_result.keys())}] \n\n"
 
         super().__init__(message)
+
+
+class CacheError(Exception):
+    """Exception raised when cache operations fail."""
+
+    pass
+
+
+class CacheKeyGenerationError(CacheError):
+    """Exception raised when cache key generation fails."""
+
+    def __init__(self, request: dict, original_error: Exception):
+        self.request = request
+        self.original_error = original_error
+        message = f"Failed to generate cache key for request. Error: {type(original_error).__name__}: {original_error}"
+        super().__init__(message)
+
+
+class CachePutError(CacheError):
+    """Exception raised when putting a value into the cache fails."""
+
+    def __init__(self, value, original_error: Exception):
+        self.value = value
+        self.original_error = original_error
+        message = f"Failed to store value in cache. Error: {type(original_error).__name__}: {original_error}"
+        super().__init__(message)
