@@ -98,8 +98,8 @@ class Cache:
     def get(self, request: dict[str, Any], ignored_args_for_cache_key: list[str] | None = None) -> Any:
         try:
             key = self.cache_key(request, ignored_args_for_cache_key)
-        except Exception:
-            logger.debug(f"Failed to generate cache key for request: {request}")
+        except Exception as e:
+            logger.debug(f"Failed to generate cache key for request. Error: {type(e).__name__}: {e}")
             return None
 
         if self.enable_memory_cache and key in self.memory_cache:
@@ -129,8 +129,8 @@ class Cache:
     ) -> None:
         try:
             key = self.cache_key(request, ignored_args_for_cache_key)
-        except Exception:
-            logger.debug(f"Failed to generate cache key for request: {request}")
+        except Exception as e:
+            logger.debug(f"Failed to generate cache key for request. Error: {type(e).__name__}: {e}")
             return
 
         if self.enable_memory_cache and enable_memory_cache:
@@ -142,7 +142,7 @@ class Cache:
                 self.disk_cache[key] = value
             except Exception as e:
                 # Disk cache writing can fail for different reasons, e.g. disk full or the `value` is not picklable.
-                logger.debug(f"Failed to put value in disk cache: {value}, {e}")
+                logger.debug(f"Failed to put value in disk cache. Error: {type(e).__name__}: {e}")
 
     def reset_memory_cache(self) -> None:
         if not self.enable_memory_cache:
